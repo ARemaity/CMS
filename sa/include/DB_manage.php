@@ -50,11 +50,101 @@ class DB_Manage
      * @param  int $id
      * @return bool
      */
-    public function update_curency($id,$name,$symbol,$value)
+    public function update_currency($id, $name, $symbol, $value)
     {
 
-        $stmt = $mysqli->prepare(' CALL `update_currency`(?, ?, ?, ?)');
-        $stmt->bind_param('issd', $id,$name,$symbol,$value);
+        $stmt = $mysqli->prepare(' CALL `update_brand`(?, ?, ?, ?)');
+        $stmt->bind_param('issd', $id, $name, $symbol, $value);
+        if ($stmt->execute()) {
+
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * delete_brand
+     *
+     * @param  int $id
+     * @return bool
+     */
+    public function delete_brand($id)
+    {
+
+        $stmt = $mysqli->prepare('  CALL `delete_brand`(?)');
+        $stmt->bind_param('i', $id);
+        if ($stmt->execute()) {
+
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+     
+    /**
+     * update_brand
+     *
+     * @param  int $id
+     * @param  string $name
+     * @param  string $description
+     * @return bool
+     */
+    public function update_brand($id, $name,$description)
+    {
+
+        $stmt = $mysqli->prepare(' CALL `update_brand`(?,?, ?)');
+        $stmt->bind_param('iss',$id,$name,$description);
+        if ($stmt->execute()) {
+
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+
+
+
+    /**
+     * delete_CAT
+     *
+     * @param  int $id
+     * @return bool
+     */
+    public function delete_cat($id)
+    {
+
+        $stmt = $mysqli->prepare('  CALL `delete_brand`(?)');
+        $stmt->bind_param('i', $id);
+        if ($stmt->execute()) {
+
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+     
+    /**
+     * update_cat
+     *
+     * @param  int $id
+     * @param  string $name
+     * @param  string $description
+     * @return bool
+     */
+    public function update_cat($id, $name,$description)
+    {
+
+        $stmt = $mysqli->prepare(' CALL `update_cat`(?,?, ?)');
+        $stmt->bind_param('iss',$id,$name,$description);
         if ($stmt->execute()) {
 
             $stmt->close();
