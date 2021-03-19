@@ -63,13 +63,31 @@ class DB_report
     public function single_brand($id)
     {
 
-        $stmt = $mysqli->prepare(' CALL `get_single_currecny`(?)');
+        $stmt =$this->conn->prepare(' CALL get_single_brand(?)');
         $stmt->bind_param('i', $id);
-        $stmt->execute();
+      
         if ($stmt->execute()) {
-            $currency = $stmt->get_result()->fetch_assoc();
+            $brand = $stmt->get_result()->fetch_assoc();
             $stmt->close();
-            return $currency;
+            return $brand;
+        } else {
+            return null;
+        }
+    }
+
+
+
+//get all brands
+    public function get_brand()
+    {
+
+        $stmt =$this->conn->prepare(' CALL get_brand()');
+      
+      
+        if ($stmt->execute()) {
+            $brand = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            return $brand;
         } else {
             return null;
         }
@@ -106,16 +124,16 @@ class DB_report
      * @param  int $id
      * @return array
      */
-    public function single_cat($id)
+    public function get_single_category($id)
     {
 
-        $stmt = $mysqli->prepare(' CALL `get_single_cat`(?)');
+        $stmt = $this->conn->prepare(' CALL `get_single_category`(?)');
         $stmt->bind_param('i', $id);
-        $stmt->execute();
+       
         if ($stmt->execute()) {
-            $currency = $stmt->get_result()->fetch_assoc();
+            $category = $stmt->get_result()->fetch_assoc();
             $stmt->close();
-            return $currency;
+            return $category;
         } else {
             return null;
         }
@@ -126,17 +144,17 @@ class DB_report
  *
  * @return array
  */
-    public function read_cat()
+    public function get_category()
     {
 
-        $stmt = $mysqli->prepare('CALL get_cat()');
+        $stmt = $this->conn->prepare('CALL get_category()');
         if ($stmt->execute()) {
             $all = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-
-            return $project;
             $stmt->close();
+            return $all;
+            
         } else {
-            die("Adding record failed: " . $stmt->error);
+            return false;
             $stmt->close();
 
         }

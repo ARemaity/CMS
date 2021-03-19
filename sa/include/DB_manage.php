@@ -73,7 +73,7 @@ class DB_Manage
     public function delete_brand($id)
     {
 
-        $stmt = $mysqli->prepare('  CALL `delete_brand`(?)');
+        $stmt = $this->conn->prepare(' CALL `delete_brand`(?)');
         $stmt->bind_param('i', $id);
         if ($stmt->execute()) {
 
@@ -93,10 +93,10 @@ class DB_Manage
      * @param  string $description
      * @return bool
      */
-    public function update_brand($id, $name,$description)
+    public function update_brand($id,$name,$description)
     {
 
-        $stmt = $mysqli->prepare(' CALL `update_brand`(?,?, ?)');
+        $stmt = $this->conn->prepare('CALL `update_brand`(?,?,?,NOW())');
         $stmt->bind_param('iss',$id,$name,$description);
         if ($stmt->execute()) {
 
@@ -117,10 +117,10 @@ class DB_Manage
      * @param  int $id
      * @return bool
      */
-    public function delete_cat($id)
+    public function delete_category($id)
     {
 
-        $stmt = $mysqli->prepare('  CALL `delete_brand`(?)');
+        $stmt =  $this->conn->prepare('  CALL `delete_category`(?)');
         $stmt->bind_param('i', $id);
         if ($stmt->execute()) {
 
@@ -140,10 +140,10 @@ class DB_Manage
      * @param  string $description
      * @return bool
      */
-    public function update_cat($id, $name,$description)
+    public function update_category($id, $name,$description)
     {
 
-        $stmt = $mysqli->prepare(' CALL `update_cat`(?,?, ?)');
+        $stmt = $this->conn->prepare(' CALL `update_category`(?,?, ?,NOW())');
         $stmt->bind_param('iss',$id,$name,$description);
         if ($stmt->execute()) {
 
