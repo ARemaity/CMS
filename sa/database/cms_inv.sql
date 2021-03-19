@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 18, 2021 at 12:10 PM
--- Server version: 10.4.13-MariaDB-log
--- PHP Version: 7.4.7
+-- Generation Time: Mar 19, 2021 at 01:04 PM
+-- Server version: 10.4.13-MariaDB
+-- PHP Version: 7.4.8
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -25,13 +25,66 @@ DELIMITER $$
 --
 -- Procedures
 --
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_brand` (IN `bid` INT)  MODIFIES SQL DATA
+BEGIN 
+
+DELETE FROM `brand` WHERE brand_id=bid;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_category` (IN `catid` INT)  NO SQL
+BEGIN 
+
+DELETE FROM `category` WHERE CID=catid;
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_currency` (IN `cid` INT)  BEGIN 
 DELETE FROM `currency` WHERE currency_id=cid;
 
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_supplier` (IN `id` INT(255))  NO SQL
+BEGIN
+
+DECLARE suppid INT DEFAULT 0;
+SET suppid = id;
+
+SELECT `fk_person_id`
+INTO id
+FROM supplier WHERE `supplier_id`= suppid ;
+DELETE FROM supplier WHERE supplier_id=suppid;
+DELETE FROM person WHERE person_id=id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_brand` ()  NO SQL
+BEGIN 
+select * FROM brand;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_category` ()  NO SQL
+BEGIN 
+select * FROM category;
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_currency` ()  BEGIN 
 select * FROM currency;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_brand` (IN `bid` INT)  NO SQL
+BEGIN 
+
+select * from brand where brand_id=bid;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_category` (IN `cid` INT(255))  NO SQL
+BEGIN 
+
+select * from category where CID=cid;
 
 END$$
 
@@ -41,10 +94,48 @@ select * from currency where currency_id=cid;
 
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_supplier` (IN `id` INT(255))  NO SQL
+BEGIN
+
+SELECT * FROM `supplier` WHERE 	supplier_id=id;
+
+
+
+
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_supllier` ()  NO SQL
+BEGIN
+SELECT * FROM `supplier`;
+
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_symbol_currency` (IN `cid` INT(255), INOUT `sy` VARCHAR(255))  BEGIN 
 SELECT symbol into sy from currency WHERE currency_id=cid;
 
 END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_supplier` (IN `person_type` TINYINT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` INT(255))  NO SQL
+BEGIN
+
+INSERT INTO `person`(`person_id`, `person_type`, `fname`, `lname`, `address`, `phone`, `email`, `created_at`, `updated_at`) VALUES (Null,person_type,fname,lname,address,phone,email,NOW(),NOW());
+
+
+
+INSERT INTO `supplier`(`supplier_id`, `fk_person_id`) VALUES (Null,LAST_INSERT_ID());
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_brand` (IN `bid` INT(255), IN `name` VARCHAR(255), IN `descrip` VARCHAR(250), IN `laupdate` TIMESTAMP(6))  BEGIN
+UPDATE `brand` SET `name`=name,`description`=descrip,`last_update`=laupdate 
+WHERE `brand_id`=bid;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_category` (IN `cid` INT(255), IN `name` VARCHAR(255), IN `descrip` VARCHAR(255), IN `laupdate` TIMESTAMP(6))  NO SQL
+UPDATE `category` 
+SET `name`=name,`description`=descrip,`last_update`=laupdate
+WHERE CID=cid$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `update_currency` (IN `cid` INT(255), IN `name` VARCHAR(50), IN `symbol` VARCHAR(50), IN `dvalue` DECIMAL(30.2))  BEGIN
 UPDATE `currency` SET `name`=name,`symbol`=symbol,`dolar_value`=dvalue WHERE `currency_id`=cid;
@@ -60,10 +151,17 @@ DELIMITER ;
 
 CREATE TABLE `brand` (
   `brand_id` int(255) NOT NULL,
-  `name` int(11) NOT NULL,
-  `description` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` varchar(250) NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `brand`
+--
+
+INSERT INTO `brand` (`brand_id`, `name`, `description`, `last_update`) VALUES
+(125, 'ok', 'ok', '2021-03-19 09:17:52');
 
 -- --------------------------------------------------------
 
@@ -73,10 +171,17 @@ CREATE TABLE `brand` (
 
 CREATE TABLE `category` (
   `CID` int(255) NOT NULL,
-  `name` int(11) NOT NULL,
-  `description` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` varchar(255) NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `category`
+--
+
+INSERT INTO `category` (`CID`, `name`, `description`, `last_update`) VALUES
+(2, 'name', 'desc', '2021-03-18 15:49:01');
 
 -- --------------------------------------------------------
 
@@ -105,13 +210,6 @@ CREATE TABLE `currency` (
   `symbol` varchar(50) NOT NULL,
   `dolar_value` decimal(30,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `currency`
---
-
-INSERT INTO `currency` (`currency_id`, `name`, `symbol`, `dolar_value`) VALUES
-(1, 'KSA', 'KSA', '0.00');
 
 -- --------------------------------------------------------
 
@@ -178,6 +276,18 @@ CREATE TABLE `person` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `person`
+--
+
+INSERT INTO `person` (`person_id`, `person_type`, `fname`, `lname`, `address`, `phone`, `email`, `created_at`, `updated_at`) VALUES
+(1, 2, 'ali', 'ayad', 'sd', '71227414', '0', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(4, 2, 'ali', 'ayad', 'sd', '71227414', '0', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(5, 5, 'gogo', 'schwuul', 'honek', '71227414', '0', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(6, 2, 'gogo', 'sd', 'adress', '71227414', '0', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(7, 4, 'maxi', 'ayad', 'here', '07415466', '0', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(8, 4, 'maxi', 'ayad', 'here', '07415466', '0', '2021-03-19 08:59:08', '2021-03-19 08:59:08');
 
 -- --------------------------------------------------------
 
@@ -271,6 +381,16 @@ CREATE TABLE `supplier` (
   `supplier_id` int(11) NOT NULL,
   `fk_person_id` int(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `supplier`
+--
+
+INSERT INTO `supplier` (`supplier_id`, `fk_person_id`) VALUES
+(4, 5),
+(5, 6),
+(6, 7),
+(7, 8);
 
 -- --------------------------------------------------------
 
@@ -404,13 +524,13 @@ ALTER TABLE `vat`
 -- AUTO_INCREMENT for table `brand`
 --
 ALTER TABLE `brand`
-  MODIFY `brand_id` int(255) NOT NULL AUTO_INCREMENT;
+  MODIFY `brand_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=126;
 
 --
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
-  MODIFY `CID` int(255) NOT NULL AUTO_INCREMENT;
+  MODIFY `CID` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `company`
@@ -446,7 +566,7 @@ ALTER TABLE `payment`
 -- AUTO_INCREMENT for table `person`
 --
 ALTER TABLE `person`
-  MODIFY `person_id` int(255) NOT NULL AUTO_INCREMENT;
+  MODIFY `person_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `product`
@@ -482,7 +602,7 @@ ALTER TABLE `stock_detail`
 -- AUTO_INCREMENT for table `supplier`
 --
 ALTER TABLE `supplier`
-  MODIFY `supplier_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `supplier_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables

@@ -30,4 +30,14 @@ $dbr=new DB_report();
 // $result=$dbm->update_category(2,"name","desc");
 // echo $result;
 
+// BEGIN
+
+// INSERT INTO `person`(`person_id`, `person_type`, `fname`, `lname`, `address`, `phone`, `email`, `created_at`, `updated_at`) VALUES (person_id,person_type,fname,lname,address,phone,email,created_at,updated_at);
+
+// SELECT LAST_INSERT_ID()into supfr;
+
+// INSERT INTO `supplier`(`supplier_id`, `fk_person_id`) VALUES (Null,supfr);
+// END
+// SELECT LAST_INSERT_ID()into supfr;
+
 ?>

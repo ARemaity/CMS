@@ -160,7 +160,39 @@ class DB_report
         }
     }
 
+    public function get_supplier()
+    {
 
+        $stmt = $this->conn->prepare('CALL `get_supllier`()');
+        if ($stmt->execute()) {
+            $all = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+            return $all;
+            
+        } else {
+            return false;
+            $stmt->close();
+
+        }
+    }
+
+    public function get_single_supplier($id)
+    {
+
+        $stmt = $this->conn->prepare('CALL `get_single_supllier`(?)');
+        $stmt->bind_param('i', $id);
+        if ($stmt->execute()) {
+
+            $all = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+            return $all;
+            
+        } else {
+            return false;
+            $stmt->close();
+
+        }
+    }
 
 
 

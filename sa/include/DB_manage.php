@@ -154,4 +154,44 @@ class DB_Manage
         }
     }
 
+    //inser supplier
+    public function new_supplier($person_type, $fname,$lname,$adress,$phone,$email)
+    {
+
+        $stmt = $this->conn->prepare(' CALL `new_supplier`(?,?,?,?,?,?)');
+        $stmt->bind_param('isssss',$person_type,$fname,$lname,$adress,$phone,$email);
+        if ($stmt->execute()) {
+
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function delete_supplier($id)
+    {
+
+        $stmt =  $this->conn->prepare(' CALL `delete_supplier`(?)');
+        $stmt->bind_param('i', $id);
+        if ($stmt->execute()) {
+
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 }
