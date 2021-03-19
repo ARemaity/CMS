@@ -1,26 +1,9 @@
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_category`(IN `catid` INT)
-    NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_brand`(IN `bid` INT)
+    MODIFIES SQL DATA
 BEGIN 
 
-DELETE FROM `category` WHERE CID=catid;
-
-END$$
-DELIMITER ;
-
-DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_currency`(IN `cid` INT)
-BEGIN 
-DELETE FROM `currency` WHERE currency_id=cid;
-
-END$$
-DELIMITER ;
-
-DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_brand`()
-    NO SQL
-BEGIN 
-select * FROM brand;
+DELETE FROM `brand` WHERE brand_id=bid;
 
 END$$
 DELIMITER ;
@@ -42,11 +25,40 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_brand`(IN `bid` INT)
-    MODIFIES SQL DATA
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_category`(IN `catid` INT)
+    NO SQL
 BEGIN 
 
-DELETE FROM `brand` WHERE brand_id=bid;
+DELETE FROM `category` WHERE CID=catid;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_stock`(IN `sid` INT)
+    NO SQL
+BEGIN 
+
+DELETE FROM stock WHERE stock_id=sid;
+
+
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_brand`()
+    NO SQL
+BEGIN 
+select * FROM brand;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_currency`(IN `cid` INT)
+BEGIN 
+DELETE FROM `currency` WHERE currency_id=cid;
 
 END$$
 DELIMITER ;
@@ -98,6 +110,14 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_stock`(IN `sid` INT(255))
+    NO SQL
+BEGIN 
+SELECT * FROM stock WHERE stock_id=sid; 
+END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_supplier`(IN `id` INT(255))
     NO SQL
 BEGIN
@@ -112,11 +132,21 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_stock`()
+    NO SQL
+BEGIN
+SELECT * FROM stock;
+END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_supllier`()
     NO SQL
 BEGIN
-SELECT * FROM `supplier`;
-
+SELECT *
+FROM supplier
+INNER JOIN person
+ON person.person_id = supplier.fk_person_id;
 
 END$$
 DELIMITER ;
@@ -162,5 +192,15 @@ DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `update_currency`(IN `cid` INT(255), IN `name` VARCHAR(50), IN `symbol` VARCHAR(50), IN `dvalue` DECIMAL(30.2))
 BEGIN
 UPDATE `currency` SET `name`=name,`symbol`=symbol,`dolar_value`=dvalue WHERE `currency_id`=cid;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_stock`(IN `sid` INT(255), IN `stock_name` VARCHAR(255), IN `stock_number` VARCHAR(250), IN `stock_address` VARCHAR(6))
+    NO SQL
+BEGIN
+UPDATE `stock` 
+SET `stock_name`=stock_name,`stock_number`=stock_number,`stock_address`=stock_address
+WHERE stock_id=sid;
 END$$
 DELIMITER ;
