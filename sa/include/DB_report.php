@@ -193,7 +193,39 @@ class DB_report
 
         }
     }
+    public function get_single_stock($id)
+    {
 
+        $stmt = $this->conn->prepare('CALL `get_single_stock`(?)');
+        $stmt->bind_param('i', $id);
+        if ($stmt->execute()) {
+
+            $all = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+            return $all;
+            
+        } else {
+            return false;
+            $stmt->close();
+
+        }
+    }
+
+    public function get_stock()
+    {
+
+        $stmt = $this->conn->prepare('CALL `get_stock`()');
+        if ($stmt->execute()) {
+            $all = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+            return $all;
+            
+        } else {
+            return false;
+            $stmt->close();
+
+        }
+    }
 
 
 

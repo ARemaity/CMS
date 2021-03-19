@@ -184,8 +184,34 @@ class DB_Manage
     }
 
 
+    public function delete_stock($id)
+    {
+
+        $stmt =  $this->conn->prepare(' CALL `delete_stock`(?)');
+        $stmt->bind_param('i', $id);
+        if ($stmt->execute()) {
+
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
+    public function update_stock($sid, $stock_name,$stock_number,$stock_address)
+    {
+
+        $stmt = $this->conn->prepare(' CALL `update_stock`(?,?,?,?)');
+        $stmt->bind_param('isss',$sid,$stock_name,$stock_number,$stock_address);
+        if ($stmt->execute()) {
+
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
 
