@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 22, 2021 at 01:18 AM
+-- Generation Time: Mar 22, 2021 at 01:42 PM
 -- Server version: 10.4.13-MariaDB-log
 -- PHP Version: 7.4.7
 
@@ -25,6 +25,10 @@ DELIMITER $$
 --
 -- Procedures
 --
+CREATE DEFINER=`root`@`localhost` PROCEDURE `create_stock_action` (IN `user_id` BIGINT(50), IN `stock_id` INT(255), IN `type` TINYINT, IN `comments` TEXT)  BEGIN 
+INSERT INTO `stock_action`(`action_id`, `fk_user_id`, `fk_stock_id`, `status`, `type`, `comment`, `created_at`) VALUES (NULL,user_id,stock_id,NULL,type,comments,NULL);
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_brand` (IN `bid` INT)  MODIFIES SQL DATA
 BEGIN 
 
@@ -61,6 +65,16 @@ INTO id
 FROM supplier WHERE `supplier_id`= suppid ;
 DELETE FROM supplier WHERE supplier_id=suppid;
 DELETE FROM person WHERE person_id=id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `disable_stock_action` (IN `action_id` INT)  BEGIN
+UPDATE `stock_action` SET `status`=0 WHERE `action_id`=action_id;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `enable_stock_action` (IN `action_id` INT)  BEGIN
+UPDATE `stock_action` SET `status`=1 WHERE `action_id`=action_id;
+
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_brand` ()  NO SQL
@@ -115,6 +129,10 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `get_stock` ()  BEGIN
 SELECT * FROM stock;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_stock_action` (IN `sid` INT(255))  BEGIN 
+SELECT * FROM stock_action WHERE `fk_stock_id`=sid; 
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_supllier` ()  BEGIN
 SELECT *
 FROM supplier
@@ -135,6 +153,17 @@ INSERT INTO `person`(`person_id`, `person_type`, `fname`, `lname`, `address`, `p
 
 
 INSERT INTO `supplier`(`supplier_id`, `fk_person_id`) VALUES (Null,LAST_INSERT_ID());
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `read_single_stock_action` (IN `action_id` INT(255))  BEGIN
+
+SELECT * from stock_action WHERE `action_id`=action_id;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `read_stock_action_t` (IN `action_id` INT(255))  BEGIN 
+SELECT  P.product_name,P.sku,A.unit_price,A.unit_number FROM   action_transaction A INNER JOIN product P  ON A.fk_product_id=P.PID  where A.fk_stock_action=action_id;
+
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `update_brand` (IN `bid` INT(255), IN `name` VARCHAR(255), IN `descrip` VARCHAR(250), IN `laupdate` TIMESTAMP(6))  BEGIN
@@ -169,6 +198,12 @@ SET `stock_name`=stock_name,`stock_number`=stock_number,`stock_address`=stock_ad
 WHERE stock_id=sid;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_stock_action` (IN `action_id` INT(255), IN `stock_id` INT(255), IN `statuses` TINYINT, IN `type` TINYINT, IN `comments` VARCHAR(255))  BEGIN
+
+UPDATE `stock_action` SET `fk_stock_id`=stock_id,`status`=statuses,`type`=type,`comment`=comments,`created_at`=NOW() WHERE `action_id`=action_id;
+
+END$$
+
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -179,10 +214,17 @@ DELIMITER ;
 
 CREATE TABLE `action_transaction` (
   `fk_stock_action` int(255) NOT NULL,
-  `fk_detail_id` int(255) NOT NULL,
-  `unit_price` decimal(30,2) NOT NULL,
+  `fk_product_id` int(255) NOT NULL,
+  `unit_price` decimal(30,2) NOT NULL DEFAULT 0.00,
   `unit_number` int(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `action_transaction`
+--
+
+INSERT INTO `action_transaction` (`fk_stock_action`, `fk_product_id`, `unit_price`, `unit_number`) VALUES
+(2, 2, '100.00', 299);
 
 -- --------------------------------------------------------
 
@@ -192,10 +234,17 @@ CREATE TABLE `action_transaction` (
 
 CREATE TABLE `brand` (
   `brand_id` int(255) NOT NULL,
-  `name` int(11) NOT NULL,
-  `description` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` varchar(255) NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `brand`
+--
+
+INSERT INTO `brand` (`brand_id`, `name`, `description`, `last_update`) VALUES
+(1, 'cream', 'cream', '2021-03-22 08:44:26');
 
 -- --------------------------------------------------------
 
@@ -205,10 +254,17 @@ CREATE TABLE `brand` (
 
 CREATE TABLE `category` (
   `CID` int(255) NOT NULL,
-  `name` int(11) NOT NULL,
-  `description` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` varchar(255) NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `category`
+--
+
+INSERT INTO `category` (`CID`, `name`, `description`, `last_update`) VALUES
+(1, 'skin care', 'skin care', '2021-03-22 10:16:58');
 
 -- --------------------------------------------------------
 
@@ -287,6 +343,13 @@ CREATE TABLE `login` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Dumping data for table `login`
+--
+
+INSERT INTO `login` (`userId`, `usertype`, `username`, `encrypted_password`, `salt`, `created_at`) VALUES
+(4, 1, 'admin', '123', '123', '2021-03-22 11:45:07');
+
 -- --------------------------------------------------------
 
 --
@@ -348,9 +411,18 @@ CREATE TABLE `product` (
   `fk_cat` int(255) NOT NULL,
   `product_name` varchar(255) NOT NULL,
   `product_description` varchar(255) NOT NULL,
+  `sku` varchar(30) NOT NULL DEFAULT '0',
+  `retail_price` decimal(30,2) NOT NULL,
   `status` tinyint(4) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `product`
+--
+
+INSERT INTO `product` (`PID`, `fk_BID`, `fk_cat`, `product_name`, `product_description`, `sku`, `retail_price`, `status`, `created_at`) VALUES
+(2, 1, 1, 'ALPROSE', 'cream for skincare', '', '0.00', 1, '2021-03-22 10:17:03');
 
 -- --------------------------------------------------------
 
@@ -388,11 +460,18 @@ CREATE TABLE `sale` (
 
 CREATE TABLE `stock` (
   `stock_id` int(255) NOT NULL,
-  `stock_name` int(11) NOT NULL,
-  `stock_number` int(11) NOT NULL,
-  `stock_address` int(11) NOT NULL,
+  `stock_name` varchar(255) NOT NULL,
+  `stock_number` bigint(20) NOT NULL,
+  `stock_address` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `stock`
+--
+
+INSERT INTO `stock` (`stock_id`, `stock_name`, `stock_number`, `stock_address`, `created_at`) VALUES
+(1, 'ksa', 1234123, 'ksa', '2021-03-22 09:48:57');
 
 -- --------------------------------------------------------
 
@@ -410,6 +489,13 @@ CREATE TABLE `stock_action` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `stock_action`
+--
+
+INSERT INTO `stock_action` (`action_id`, `fk_user_id`, `fk_stock_id`, `status`, `type`, `comment`, `created_at`) VALUES
+(2, 4, 1, 1, 2, 'hello', '2021-03-22 11:37:48');
+
 -- --------------------------------------------------------
 
 --
@@ -423,9 +509,15 @@ CREATE TABLE `stock_detail` (
   `in_stock` tinyint(4) NOT NULL,
   `unit` int(255) NOT NULL,
   `purchase_price` decimal(30,2) NOT NULL,
-  `retail_price` decimal(30,2) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `stock_detail`
+--
+
+INSERT INTO `stock_detail` (`detail_id`, `fk_product_id`, `fk_stock_id`, `in_stock`, `unit`, `purchase_price`, `created_at`) VALUES
+(1, 2, 1, 1, 100, '240.00', '2021-03-22 10:18:39');
 
 -- --------------------------------------------------------
 
@@ -484,7 +576,7 @@ CREATE TABLE `vat` (
 --
 ALTER TABLE `action_transaction`
   ADD KEY `fk_action_id` (`fk_stock_action`),
-  ADD KEY `fk_detail_id` (`fk_detail_id`);
+  ADD KEY `fk_product_id` (`fk_product_id`);
 
 --
 -- Indexes for table `brand`
@@ -624,13 +716,13 @@ ALTER TABLE `vat`
 -- AUTO_INCREMENT for table `brand`
 --
 ALTER TABLE `brand`
-  MODIFY `brand_id` int(255) NOT NULL AUTO_INCREMENT;
+  MODIFY `brand_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
-  MODIFY `CID` int(255) NOT NULL AUTO_INCREMENT;
+  MODIFY `CID` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `company`
@@ -654,7 +746,7 @@ ALTER TABLE `customer`
 -- AUTO_INCREMENT for table `login`
 --
 ALTER TABLE `login`
-  MODIFY `userId` bigint(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `userId` bigint(50) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `payment`
@@ -672,7 +764,7 @@ ALTER TABLE `person`
 -- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
-  MODIFY `PID` int(255) NOT NULL AUTO_INCREMENT;
+  MODIFY `PID` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `purchase`
@@ -690,19 +782,19 @@ ALTER TABLE `sale`
 -- AUTO_INCREMENT for table `stock`
 --
 ALTER TABLE `stock`
-  MODIFY `stock_id` int(255) NOT NULL AUTO_INCREMENT;
+  MODIFY `stock_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `stock_action`
 --
 ALTER TABLE `stock_action`
-  MODIFY `action_id` int(255) NOT NULL AUTO_INCREMENT;
+  MODIFY `action_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `stock_detail`
 --
 ALTER TABLE `stock_detail`
-  MODIFY `detail_id` int(255) NOT NULL AUTO_INCREMENT;
+  MODIFY `detail_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `stock_mngmnt`
@@ -725,7 +817,7 @@ ALTER TABLE `supplier`
 --
 ALTER TABLE `action_transaction`
   ADD CONSTRAINT `fk_action_id` FOREIGN KEY (`fk_stock_action`) REFERENCES `stock_action` (`action_id`),
-  ADD CONSTRAINT `fk_detail_id` FOREIGN KEY (`fk_detail_id`) REFERENCES `stock_detail` (`detail_id`);
+  ADD CONSTRAINT `fk_product_id` FOREIGN KEY (`fk_product_id`) REFERENCES `product` (`PID`);
 
 --
 -- Constraints for table `customer`
@@ -772,7 +864,8 @@ ALTER TABLE `stock_action`
 -- Constraints for table `stock_detail`
 --
 ALTER TABLE `stock_detail`
-  ADD CONSTRAINT `fk_d_product` FOREIGN KEY (`fk_product_id`) REFERENCES `product` (`PID`);
+  ADD CONSTRAINT `fk_d_product` FOREIGN KEY (`fk_product_id`) REFERENCES `product` (`PID`),
+  ADD CONSTRAINT `fk_d_stock` FOREIGN KEY (`fk_stock_id`) REFERENCES `stock` (`stock_id`);
 
 --
 -- Constraints for table `stock_mngmnt`
