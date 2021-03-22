@@ -14,8 +14,21 @@ $dbr=new DB_report();
 // echo $result;
 
 
-$result=$dbr->get_supplier();
+// $result=$dbr->get_supplier();
+
+// print_r( $result);
+
+
+$result=$dbr->get_single_supplier(8);
 
 print_r( $result);
 
+
+// $result=$dbm->delete_supplier(9);
+
+// echo $result;
+
+
+// $result=$dbm->update_supplier(8,4,"maxi","ayad","here","07415466","asd@gmail");
+// echo $result;
 ?>

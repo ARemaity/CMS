@@ -9,11 +9,25 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_category`(IN `catid` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_currency`(IN `cid` INT)
 BEGIN 
+DELETE FROM `currency` WHERE currency_id=cid;
 
-DELETE FROM `category` WHERE CID=catid;
+END$$
+DELIMITER ;
 
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_customer`(IN `id` INT)
+BEGIN
+
+DECLARE fkid INT DEFAULT 0;
+
+
+SELECT `fk_person_id`
+INTO fkid
+FROM customer WHERE `customer_id`= id ;
+DELETE FROM customer WHERE customer.customer_id=id;
+CALL delete_person(fkid);
 END$$
 DELIMITER ;
 
@@ -29,17 +43,34 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_category`(IN `catid` INT)
+BEGIN 
+
+DELETE FROM `category` WHERE CID=catid;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_person`(IN `did` INT(255))
+    NO SQL
+BEGIN
+DELETE FROM `person` WHERE person.person_id=did;
+END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_supplier`(IN `id` INT(255))
 BEGIN
 
-DECLARE suppid INT DEFAULT 0;
-SET suppid = id;
+DECLARE fkpid INT DEFAULT 0;
+
 
 SELECT `fk_person_id`
-INTO id
-FROM supplier WHERE `supplier_id`= suppid ;
-DELETE FROM supplier WHERE supplier_id=suppid;
-DELETE FROM person WHERE person_id=id;
+INTO fkpid
+FROM supplier WHERE `supplier_id`= id ;
+DELETE FROM supplier WHERE supplier_id=id;
+CALL delete_person(fkpid);
 END$$
 DELIMITER ;
 
@@ -53,27 +84,10 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_currency`(IN `cid` INT)
-BEGIN 
-DELETE FROM `currency` WHERE currency_id=cid;
-
-END$$
-DELIMITER ;
-
-DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_category`()
 BEGIN 
 select * FROM category;
 
-END$$
-DELIMITER ;
-
-DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `update_stock`(IN `sid` INT(255), IN `stock_name` VARCHAR(255), IN `stock_number` VARCHAR(250), IN `stock_address` VARCHAR(6))
-BEGIN
-UPDATE `stock` 
-SET `stock_name`=stock_name,`stock_number`=stock_number,`stock_address`=stock_address
-WHERE stock_id=sid;
 END$$
 DELIMITER ;
 
@@ -86,17 +100,12 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `update_person`(IN `person_id` INT(255), IN `person_type` INT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_customer`()
 BEGIN
-
-UPDATE `person` 
-SET `person_type`=person_type,`fname`=fname,`lname`=lname,`address`=address,`phone`=phone,`email`=email,`updated_at`=NOW() 
-
-WHERE person.person_id=person_id;
-
-
-
-
+SELECT *
+FROM customer
+INNER JOIN person
+ON person.person_id = customer.fk_person_id;
 
 END$$
 DELIMITER ;
@@ -111,26 +120,12 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `update_currency`(IN `cid` INT(255), IN `name` VARCHAR(50), IN `symbol` VARCHAR(50), IN `dvalue` DECIMAL(30.2))
-BEGIN
-UPDATE `currency` SET `name`=name,`symbol`=symbol,`dolar_value`=dvalue WHERE `currency_id`=cid;
-END$$
-DELIMITER ;
-
-DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_category`(IN `cid` INT(255))
 BEGIN 
 
 select * from category where CID=cid;
 
 END$$
-DELIMITER ;
-
-DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `update_category`(IN `cid` INT(255), IN `name` VARCHAR(255), IN `descrip` VARCHAR(255), IN `laupdate` TIMESTAMP(6))
-UPDATE `category` 
-SET `name`=name,`description`=descrip,`last_update`=laupdate
-WHERE CID=cid$$
 DELIMITER ;
 
 DELIMITER $$
@@ -143,10 +138,30 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `update_brand`(IN `bid` INT(255), IN `name` VARCHAR(255), IN `descrip` VARCHAR(250), IN `laupdate` TIMESTAMP(6))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_customer`(IN `cid` INT(255))
+    NO SQL
 BEGIN
-UPDATE `brand` SET `name`=name,`description`=descrip,`last_update`=laupdate 
-WHERE `brand_id`=bid;
+DECLARE persindgid INT DEFAULT 0;
+SELECT `fk_person_id`
+INTO persindgid
+FROM customer WHERE `customer_id`= cid ;
+
+
+CALL get_single_person(persindgid);
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_person`(IN `pid` INT(255))
+    NO SQL
+BEGIN
+
+SELECT * FROM person
+WHERE person.person_id=pid;
+
+
+
 END$$
 DELIMITER ;
 
@@ -158,34 +173,15 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `new_supplier`(IN `person_type` TINYINT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` INT(255))
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_supplier`(IN `sid` INT(255))
 BEGIN
-
-INSERT INTO `person`(`person_id`, `person_type`, `fname`, `lname`, `address`, `phone`, `email`, `created_at`, `updated_at`) VALUES (Null,person_type,fname,lname,address,phone,email,NOW(),NOW());
-
-
-
-INSERT INTO `supplier`(`supplier_id`, `fk_person_id`) VALUES (Null,LAST_INSERT_ID());
-END$$
-DELIMITER ;
-
-DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_supplier`(IN `id` INT(255))
-BEGIN
-
-SELECT * FROM `supplier` WHERE 	supplier_id=id;
+DECLARE persindgid INT DEFAULT 0;
+SELECT `fk_person_id`
+INTO persindgid
+FROM supplier WHERE `supplier_id`= sid ;
 
 
-
-
-
-END$$
-DELIMITER ;
-
-DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_symbol_currency`(IN `cid` INT(255), INOUT `sy` VARCHAR(255))
-BEGIN 
-SELECT symbol into sy from currency WHERE currency_id=cid;
+CALL get_single_person(persindgid);
 
 END$$
 DELIMITER ;
@@ -204,6 +200,133 @@ SELECT *
 FROM supplier
 INNER JOIN person
 ON person.person_id = supplier.fk_person_id;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_symbol_currency`(IN `cid` INT(255), INOUT `sy` VARCHAR(255))
+BEGIN 
+SELECT symbol into sy from currency WHERE currency_id=cid;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_customer`(IN `person_type` INT, IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255))
+BEGIN
+
+
+CALL new_person(person_type,fname,lname,address,phone,email,@lid);
+
+
+INSERT INTO `customer`(`customer_id`, `fk_person_id`) VALUES (Null,@lid);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_person`(IN `person_type` TINYINT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255), OUT `lid` INT(250))
+BEGIN
+
+INSERT INTO `person`(`person_id`, `person_type`, `fname`, `lname`, `address`, `phone`, `email`, `created_at`, `updated_at`) VALUES (Null,person_type,fname,lname,address,phone,email,NOW(),NOW());
+
+
+
+SELECT LAST_INSERT_ID()
+INTO lid;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_supplier`(IN `person_type` TINYINT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255))
+BEGIN
+
+CALL new_person(person_type,fname,lname,address,phone,email,@lid);
+
+
+
+INSERT INTO `supplier`(`supplier_id`, `fk_person_id`) VALUES (Null,@lid);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_brand`(IN `bid` INT(255), IN `name` VARCHAR(255), IN `descrip` VARCHAR(250), IN `laupdate` TIMESTAMP(6))
+BEGIN
+UPDATE `brand` SET `name`=name,`description`=descrip,`last_update`=laupdate 
+WHERE `brand_id`=bid;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_category`(IN `cid` INT(255), IN `name` VARCHAR(255), IN `descrip` VARCHAR(255), IN `laupdate` TIMESTAMP(6))
+UPDATE `category` 
+SET `name`=name,`description`=descrip,`last_update`=laupdate
+WHERE CID=cid$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_currency`(IN `cid` INT(255), IN `name` VARCHAR(50), IN `symbol` VARCHAR(50), IN `dvalue` DECIMAL(30.2))
+BEGIN
+UPDATE `currency` SET `name`=name,`symbol`=symbol,`dolar_value`=dvalue WHERE `currency_id`=cid;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_customer`(IN `customer_gid` INT(255), IN `person_type` INT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255))
+    NO SQL
+BEGIN
+DECLARE persindgid INT DEFAULT 0;
+SELECT `fk_person_id`
+INTO persindgid
+FROM customer WHERE `customer_id`= customer_gid ;
+
+
+CALL update_person(persindgid,person_type,fname,lname,address,phone,email);
+
+
+
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_person`(IN `person_id` INT(255), IN `person_type` INT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255))
+BEGIN
+
+UPDATE `person` 
+SET `person_type`=person_type,`fname`=fname,`lname`=lname,`address`=address,`phone`=phone,`email`=email,`updated_at`=NOW() 
+
+WHERE person.person_id=person_id;
+
+
+
+
+
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_stock`(IN `sid` INT(255), IN `stock_name` VARCHAR(255), IN `stock_number` VARCHAR(250), IN `stock_address` VARCHAR(6))
+BEGIN
+UPDATE `stock` 
+SET `stock_name`=stock_name,`stock_number`=stock_number,`stock_address`=stock_address
+WHERE stock_id=sid;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_supplier`(IN `sid` INT(255), IN `person_type` TINYINT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255))
+BEGIN
+DECLARE persindgid INT DEFAULT 0;
+
+SELECT `fk_person_id`
+INTO persindgid
+FROM supplier WHERE `supplier_id`= sid ;
+
+
+CALL update_person(persindgid,person_type,fname,lname,address,phone,email);
+
 
 END$$
 DELIMITER ;
