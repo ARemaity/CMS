@@ -226,7 +226,77 @@ class DB_report
 
         }
     }
+    
+    /**
+     * get_stock_action
+     *
+    * @param  int action_id
+     * @return array single row
+     */
+    public function get_stock_action($sid)
+    {
 
+        $stmt = $this->conn->prepare('CALL `get_stock_action`(?)');
+        $stmt->bind_param('i', $sid);
+        if ($stmt->execute()) {
+            $all = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+            return $all;
+            
+        } else {
+            return false;
+            $stmt->close();
+
+        }
+    }
+
+    
+    /**
+     * get_single_stock_action
+     *
+     * @param  int action_id
+     * @return array single row
+     */
+    public function get_single_stock_action($id)
+    {
+
+        $stmt = $this->conn->prepare('CALL `read_single_stock_action`(?)');
+        $stmt->bind_param('i', $id);
+        if ($stmt->execute()) {
+
+            $all = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            return $all;
+            
+        } else {
+            return false;
+            $stmt->close();
+
+        }
+    }
+
+        /**
+     * get_stock_action_transaction
+     *
+    * @param  int action_id
+     * @return array single row
+     */
+    public function get_stock_action_transaction($sid)
+    {
+
+        $stmt = $this->conn->prepare('read_stock_action_t`(?)');
+        $stmt->bind_param('i', $sid);
+        if ($stmt->execute()) {
+            $all = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+            return $all;
+            
+        } else {
+            return false;
+            $stmt->close();
+
+        }
+    }
 
 
 }

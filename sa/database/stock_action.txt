@@ -1,0 +1,55 @@
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `create_stock_action`(IN `user_id` BIGINT(50), IN `stock_id` INT(255), IN `type` TINYINT, IN `comments` TEXT)
+BEGIN 
+INSERT INTO `stock_action`(`action_id`, `fk_user_id`, `fk_stock_id`, `status`, `type`, `comment`, `created_at`) VALUES (NULL,user_id,stock_id,NULL,type,comments,NULL);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_stock_action`(IN `sid` INT(255))
+BEGIN 
+SELECT * FROM stock_action WHERE `fk_stock_id`=sid; 
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `enable_stock_action`(IN `action_id` INT)
+BEGIN
+UPDATE `stock_action` SET `status`=1 WHERE `action_id`=action_id;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `disable_stock_action`(IN `action_id` INT)
+BEGIN
+UPDATE `stock_action` SET `status`=0 WHERE `action_id`=action_id;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `read_single_stock_action`(IN `action_id` INT(255))
+BEGIN
+
+SELECT * from stock_action WHERE `action_id`=action_id;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `read_stock_action_t`(IN `action_id` INT(255))
+BEGIN 
+SELECT  P.product_name,P.sku,A.unit_price,A.unit_number FROM   action_transaction A INNER JOIN product P  ON A.fk_product_id=P.PID  where A.fk_stock_action=action_id;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_stock_action`(IN `action_id` INT(255), IN `stock_id` INT(255), IN `statuses` TINYINT, IN `type` TINYINT, IN `comments` VARCHAR(255))
+BEGIN
+
+UPDATE `stock_action` SET `fk_stock_id`=stock_id,`status`=statuses,`type`=type,`comment`=comments,`created_at`=NOW() WHERE `action_id`=action_id;
+
+END$$
+DELIMITER ;

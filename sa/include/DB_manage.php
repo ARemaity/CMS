@@ -214,7 +214,52 @@ class DB_manage
 
 
 
+    
+    /**
+     * create_stock_action
+     *
+     * @param  mixed $user_id
+     * @param  mixed $stock_id
+     * @param  mixed $type
+     * @param  mixed $comment
+     * @return void
+     */
+    public function create_stock_action($user_id, $stock_id,$type,$comment)
+    {
 
+        $stmt = $this->conn->prepare(' CALL `create_stock_action`(?,?,?,?)');
+        $stmt->bind_param('iiis',$user_id, $stock_id,$type,$comment);
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    
+    /**
+     * update_stock_action
+     *
+     * @param  mixed $action_id
+     * @param  mixed $stock_id
+     * @param  mixed $status
+     * @param  mixed $type
+     * @param  mixed $comment
+     * @return void
+     */
+    public function  update_stock_action($action_id, $stock_id,$status,$type,$comment)
+    {
+
+        $stmt = $this->conn->prepare(' CALL `create_stock_action`(?,?,?,?)');
+        $stmt->bind_param('iiiis',$action_id, $stock_id,$status,$type,$comment);
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
 
