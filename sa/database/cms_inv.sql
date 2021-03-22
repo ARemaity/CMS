@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 22, 2021 at 01:42 PM
+-- Generation Time: Mar 22, 2021 at 01:45 PM
 -- Server version: 10.4.13-MariaDB-log
 -- PHP Version: 7.4.7
 
@@ -47,6 +47,23 @@ DELETE FROM `currency` WHERE currency_id=cid;
 
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_customer` (IN `id` INT)  BEGIN
+
+DECLARE fkid INT DEFAULT 0;
+
+
+SELECT `fk_person_id`
+INTO fkid
+FROM customer WHERE `customer_id`= id ;
+DELETE FROM customer WHERE customer.customer_id=id;
+CALL delete_person(fkid);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_person` (IN `did` INT(255))  NO SQL
+BEGIN
+DELETE FROM `person` WHERE person.person_id=did;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_stock` (IN `sid` INT)  BEGIN 
 
 DELETE FROM stock WHERE stock_id=sid;
@@ -57,14 +74,14 @@ END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_supplier` (IN `id` INT(255))  BEGIN
 
-DECLARE suppid INT DEFAULT 0;
-SET suppid = id;
+DECLARE fkpid INT DEFAULT 0;
+
 
 SELECT `fk_person_id`
-INTO id
-FROM supplier WHERE `supplier_id`= suppid ;
-DELETE FROM supplier WHERE supplier_id=suppid;
-DELETE FROM person WHERE person_id=id;
+INTO fkpid
+FROM supplier WHERE `supplier_id`= id ;
+DELETE FROM supplier WHERE supplier_id=id;
+CALL delete_person(fkpid);
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `disable_stock_action` (IN `action_id` INT)  BEGIN
@@ -93,6 +110,14 @@ select * FROM currency;
 
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_customer` ()  BEGIN
+SELECT *
+FROM customer
+INNER JOIN person
+ON person.person_id = customer.fk_person_id;
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_brand` (IN `bid` INT)  BEGIN 
 
 select * from brand where brand_id=bid;
@@ -111,17 +136,40 @@ select * from currency where currency_id=cid;
 
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_customer` (IN `cid` INT(255))  NO SQL
+BEGIN
+DECLARE persindgid INT DEFAULT 0;
+SELECT `fk_person_id`
+INTO persindgid
+FROM customer WHERE `customer_id`= cid ;
+
+
+CALL get_single_person(persindgid);
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_person` (IN `pid` INT(255))  NO SQL
+BEGIN
+
+SELECT * FROM person
+WHERE person.person_id=pid;
+
+
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_stock` (IN `sid` INT(255))  BEGIN 
 SELECT * FROM stock WHERE stock_id=sid; 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_supplier` (IN `id` INT(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_supplier` (IN `sid` INT(255))  BEGIN
+DECLARE persindgid INT DEFAULT 0;
+SELECT `fk_person_id`
+INTO persindgid
+FROM supplier WHERE `supplier_id`= sid ;
 
-SELECT * FROM `supplier` WHERE 	supplier_id=id;
 
-
-
-
+CALL get_single_person(persindgid);
 
 END$$
 
@@ -146,13 +194,32 @@ SELECT symbol into sy from currency WHERE currency_id=cid;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `new_supplier` (IN `person_type` TINYINT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` INT(255))  BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_customer` (IN `person_type` INT, IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255))  BEGIN
+
+
+CALL new_person(person_type,fname,lname,address,phone,email,@lid);
+
+
+INSERT INTO `customer`(`customer_id`, `fk_person_id`) VALUES (Null,@lid);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_person` (IN `person_type` TINYINT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255), OUT `lid` INT(250))  BEGIN
 
 INSERT INTO `person`(`person_id`, `person_type`, `fname`, `lname`, `address`, `phone`, `email`, `created_at`, `updated_at`) VALUES (Null,person_type,fname,lname,address,phone,email,NOW(),NOW());
 
 
 
-INSERT INTO `supplier`(`supplier_id`, `fk_person_id`) VALUES (Null,LAST_INSERT_ID());
+SELECT LAST_INSERT_ID()
+INTO lid;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_supplier` (IN `person_type` TINYINT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255))  BEGIN
+
+CALL new_person(person_type,fname,lname,address,phone,email,@lid);
+
+
+
+INSERT INTO `supplier`(`supplier_id`, `fk_person_id`) VALUES (Null,@lid);
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `read_single_stock_action` (IN `action_id` INT(255))  BEGIN
@@ -179,12 +246,28 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `update_currency` (IN `cid` INT(255)
 UPDATE `currency` SET `name`=name,`symbol`=symbol,`dolar_value`=dvalue WHERE `currency_id`=cid;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_customer` (IN `customer_gid` INT(255), IN `person_type` INT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255))  NO SQL
+BEGIN
+DECLARE persindgid INT DEFAULT 0;
+SELECT `fk_person_id`
+INTO persindgid
+FROM customer WHERE `customer_id`= customer_gid ;
+
+
+CALL update_person(persindgid,person_type,fname,lname,address,phone,email);
+
+
+
+
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `update_person` (IN `person_id` INT(255), IN `person_type` INT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255))  BEGIN
 
 UPDATE `person` 
 SET `person_type`=person_type,`fname`=fname,`lname`=lname,`address`=address,`phone`=phone,`email`=email,`updated_at`=NOW() 
 
 WHERE person.person_id=person_id;
+
 
 
 
@@ -201,6 +284,19 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `update_stock_action` (IN `action_id` INT(255), IN `stock_id` INT(255), IN `statuses` TINYINT, IN `type` TINYINT, IN `comments` VARCHAR(255))  BEGIN
 
 UPDATE `stock_action` SET `fk_stock_id`=stock_id,`status`=statuses,`type`=type,`comment`=comments,`created_at`=NOW() WHERE `action_id`=action_id;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_supplier` (IN `sid` INT(255), IN `person_type` TINYINT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255))  BEGIN
+DECLARE persindgid INT DEFAULT 0;
+
+SELECT `fk_person_id`
+INTO persindgid
+FROM supplier WHERE `supplier_id`= sid ;
+
+
+CALL update_person(persindgid,person_type,fname,lname,address,phone,email);
+
 
 END$$
 
