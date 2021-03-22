@@ -181,6 +181,22 @@ class DB_manage
         }
     }
 
+    public function update_supplier($sid, $person_type,$fname,$lname,$address,$phone,$email)
+    {
+
+        $stmt = $this->conn->prepare(' CALL `update_supplier`(?,?,?,?,?,?,?)');
+        $stmt->bind_param('iisssss',$sid,$person_type,$fname,$lname,$address,$phone,$email);
+        if ($stmt->execute()) {
+
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+
 
     public function delete_stock($id)
     {
@@ -211,9 +227,48 @@ class DB_manage
         }
     }
 
+    //customer
+    public function new_customer($person_type, $fname,$lname,$adress,$phone,$email)
+    {
 
+        $stmt = $this->conn->prepare(' CALL `new_customer`(?,?,?,?,?,?)');
+        $stmt->bind_param('isssss',$person_type,$fname,$lname,$adress,$phone,$email);
+        if ($stmt->execute()) {
 
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
 
+    public function delete_customer($id)
+    {
+
+        $stmt =  $this->conn->prepare(' CALL `delete_customer`(?)');
+        $stmt->bind_param('i', $id);
+        if ($stmt->execute()) {
+
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function update_customer($cid, $person_type,$fname,$lname,$address,$phone,$email)
+    {
+
+        $stmt = $this->conn->prepare(' CALL `update_customer`(?,?,?,?,?,?,?)');
+        $stmt->bind_param('iisssss',$cid,$person_type,$fname,$lname,$address,$phone,$email);
+        if ($stmt->execute()) {
+
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
 

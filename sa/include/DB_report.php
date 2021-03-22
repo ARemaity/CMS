@@ -179,7 +179,7 @@ class DB_report
     public function get_single_supplier($id)
     {
 
-        $stmt = $this->conn->prepare('CALL `get_single_supllier`(?)');
+        $stmt = $this->conn->prepare('CALL `get_single_supplier`(?)');
         $stmt->bind_param('i', $id);
         if ($stmt->execute()) {
 
@@ -227,6 +227,37 @@ class DB_report
         }
     }
 
+//customer
+public function get_customer()
+{
 
+    $stmt = $this->conn->prepare('CALL `get_customer`()');
+    if ($stmt->execute()) {
+        $all = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $all;
+        
+    } else {
+        return false;
+        $stmt->close();
 
+    }
+}
+public function get_single_customer($id)
+    {
+
+        $stmt = $this->conn->prepare('CALL `get_single_customer`(?)');
+        $stmt->bind_param('i', $id);
+        if ($stmt->execute()) {
+
+            $all = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            return $all;
+            
+        } else {
+            return false;
+            $stmt->close();
+
+        }
+    }
 }
