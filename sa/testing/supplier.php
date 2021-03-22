@@ -14,21 +14,8 @@ $dbr=new DB_report();
 // echo $result;
 
 
-
-
-
 $result=$dbr->get_supplier();
 
 print_r( $result);
-
-
-
-
-
-
-
-
-
-
 
 ?>

@@ -183,7 +183,7 @@ class DB_report
         $stmt->bind_param('i', $id);
         if ($stmt->execute()) {
 
-            $all = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $all = $stmt->get_result()->fetch_assoc();
             $stmt->close();
             return $all;
             
@@ -200,7 +200,7 @@ class DB_report
         $stmt->bind_param('i', $id);
         if ($stmt->execute()) {
 
-            $all = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $all = $stmt->get_result()->fetch_assoc();
             $stmt->close();
             return $all;
             

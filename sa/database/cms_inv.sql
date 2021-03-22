@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 19, 2021 at 01:04 PM
--- Server version: 10.4.13-MariaDB
--- PHP Version: 7.4.8
+-- Generation Time: Mar 22, 2021 at 01:18 AM
+-- Server version: 10.4.13-MariaDB-log
+-- PHP Version: 7.4.7
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -32,8 +32,7 @@ DELETE FROM `brand` WHERE brand_id=bid;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_category` (IN `catid` INT)  NO SQL
-BEGIN 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_category` (IN `catid` INT)  BEGIN 
 
 DELETE FROM `category` WHERE CID=catid;
 
@@ -44,8 +43,15 @@ DELETE FROM `currency` WHERE currency_id=cid;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_supplier` (IN `id` INT(255))  NO SQL
-BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_stock` (IN `sid` INT)  BEGIN 
+
+DELETE FROM stock WHERE stock_id=sid;
+
+
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_supplier` (IN `id` INT(255))  BEGIN
 
 DECLARE suppid INT DEFAULT 0;
 SET suppid = id;
@@ -63,8 +69,7 @@ select * FROM brand;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_category` ()  NO SQL
-BEGIN 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_category` ()  BEGIN 
 select * FROM category;
 
 END$$
@@ -74,15 +79,13 @@ select * FROM currency;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_brand` (IN `bid` INT)  NO SQL
-BEGIN 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_brand` (IN `bid` INT)  BEGIN 
 
 select * from brand where brand_id=bid;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_category` (IN `cid` INT(255))  NO SQL
-BEGIN 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_category` (IN `cid` INT(255))  BEGIN 
 
 select * from category where CID=cid;
 
@@ -94,8 +97,11 @@ select * from currency where currency_id=cid;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_supplier` (IN `id` INT(255))  NO SQL
-BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_stock` (IN `sid` INT(255))  BEGIN 
+SELECT * FROM stock WHERE stock_id=sid; 
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_supplier` (IN `id` INT(255))  BEGIN
 
 SELECT * FROM `supplier` WHERE 	supplier_id=id;
 
@@ -105,10 +111,15 @@ SELECT * FROM `supplier` WHERE 	supplier_id=id;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `get_supllier` ()  NO SQL
-BEGIN
-SELECT * FROM `supplier`;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_stock` ()  BEGIN
+SELECT * FROM stock;
+END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_supllier` ()  BEGIN
+SELECT *
+FROM supplier
+INNER JOIN person
+ON person.person_id = supplier.fk_person_id;
 
 END$$
 
@@ -117,8 +128,7 @@ SELECT symbol into sy from currency WHERE currency_id=cid;
 
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `new_supplier` (IN `person_type` TINYINT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` INT(255))  NO SQL
-BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_supplier` (IN `person_type` TINYINT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` INT(255))  BEGIN
 
 INSERT INTO `person`(`person_id`, `person_type`, `fname`, `lname`, `address`, `phone`, `email`, `created_at`, `updated_at`) VALUES (Null,person_type,fname,lname,address,phone,email,NOW(),NOW());
 
@@ -132,8 +142,7 @@ UPDATE `brand` SET `name`=name,`description`=descrip,`last_update`=laupdate
 WHERE `brand_id`=bid;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `update_category` (IN `cid` INT(255), IN `name` VARCHAR(255), IN `descrip` VARCHAR(255), IN `laupdate` TIMESTAMP(6))  NO SQL
-UPDATE `category` 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_category` (IN `cid` INT(255), IN `name` VARCHAR(255), IN `descrip` VARCHAR(255), IN `laupdate` TIMESTAMP(6))  UPDATE `category` 
 SET `name`=name,`description`=descrip,`last_update`=laupdate
 WHERE CID=cid$$
 
@@ -141,7 +150,39 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `update_currency` (IN `cid` INT(255)
 UPDATE `currency` SET `name`=name,`symbol`=symbol,`dolar_value`=dvalue WHERE `currency_id`=cid;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_person` (IN `person_id` INT(255), IN `person_type` INT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255))  BEGIN
+
+UPDATE `person` 
+SET `person_type`=person_type,`fname`=fname,`lname`=lname,`address`=address,`phone`=phone,`email`=email,`updated_at`=NOW() 
+
+WHERE person.person_id=person_id;
+
+
+
+
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_stock` (IN `sid` INT(255), IN `stock_name` VARCHAR(255), IN `stock_number` VARCHAR(250), IN `stock_address` VARCHAR(6))  BEGIN
+UPDATE `stock` 
+SET `stock_name`=stock_name,`stock_number`=stock_number,`stock_address`=stock_address
+WHERE stock_id=sid;
+END$$
+
 DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `action_transaction`
+--
+
+CREATE TABLE `action_transaction` (
+  `fk_stock_action` int(255) NOT NULL,
+  `fk_detail_id` int(255) NOT NULL,
+  `unit_price` decimal(30,2) NOT NULL,
+  `unit_number` int(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -151,17 +192,10 @@ DELIMITER ;
 
 CREATE TABLE `brand` (
   `brand_id` int(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `description` varchar(250) NOT NULL,
+  `name` int(11) NOT NULL,
+  `description` int(11) NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `brand`
---
-
-INSERT INTO `brand` (`brand_id`, `name`, `description`, `last_update`) VALUES
-(125, 'ok', 'ok', '2021-03-19 09:17:52');
 
 -- --------------------------------------------------------
 
@@ -171,17 +205,10 @@ INSERT INTO `brand` (`brand_id`, `name`, `description`, `last_update`) VALUES
 
 CREATE TABLE `category` (
   `CID` int(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `description` varchar(255) NOT NULL,
+  `name` int(11) NOT NULL,
+  `description` int(11) NOT NULL,
   `last_update` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `category`
---
-
-INSERT INTO `category` (`CID`, `name`, `description`, `last_update`) VALUES
-(2, 'name', 'desc', '2021-03-18 15:49:01');
 
 -- --------------------------------------------------------
 
@@ -211,6 +238,13 @@ CREATE TABLE `currency` (
   `dolar_value` decimal(30,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `currency`
+--
+
+INSERT INTO `currency` (`currency_id`, `name`, `symbol`, `dolar_value`) VALUES
+(1, 'KSA', 'KSA', '0.00');
+
 -- --------------------------------------------------------
 
 --
@@ -219,7 +253,8 @@ CREATE TABLE `currency` (
 
 CREATE TABLE `customer` (
   `customer_id` int(255) NOT NULL,
-  `fk_person_id` int(255) NOT NULL
+  `fk_person_id` int(255) NOT NULL,
+  `status` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -231,7 +266,10 @@ CREATE TABLE `customer` (
 CREATE TABLE `item_transaction` (
   `fk_PID` int(255) NOT NULL,
   `fk_sales_id` int(255) NOT NULL,
-  `fk_purchase_id` int(255) NOT NULL
+  `fk_purchase_id` int(255) NOT NULL,
+  `fk_user_id` bigint(50) NOT NULL,
+  `type` tinyint(4) NOT NULL,
+  `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -248,6 +286,19 @@ CREATE TABLE `login` (
   `salt` varchar(10) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mngmnt_transaction`
+--
+
+CREATE TABLE `mngmnt_transaction` (
+  `fk_stock_action` int(255) NOT NULL,
+  `fk_detail_id` int(255) NOT NULL,
+  `unit_number` int(255) NOT NULL,
+  `before_unit` int(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -282,12 +333,8 @@ CREATE TABLE `person` (
 --
 
 INSERT INTO `person` (`person_id`, `person_type`, `fname`, `lname`, `address`, `phone`, `email`, `created_at`, `updated_at`) VALUES
-(1, 2, 'ali', 'ayad', 'sd', '71227414', '0', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(4, 2, 'ali', 'ayad', 'sd', '71227414', '0', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(5, 5, 'gogo', 'schwuul', 'honek', '71227414', '0', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(6, 2, 'gogo', 'sd', 'adress', '71227414', '0', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(7, 4, 'maxi', 'ayad', 'here', '07415466', '0', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(8, 4, 'maxi', 'ayad', 'here', '07415466', '0', '2021-03-19 08:59:08', '2021-03-19 08:59:08');
+(1, 1, 'asdasd', 'asdasd', 'asdas', '33333', 'alede', '2021-03-19 11:00:27', '2021-03-19 11:00:27'),
+(2, 1, 'test', 'test', 'test', '555555', '0', '2021-03-19 12:23:33', '2021-03-19 12:23:33');
 
 -- --------------------------------------------------------
 
@@ -300,7 +347,9 @@ CREATE TABLE `product` (
   `fk_BID` int(255) NOT NULL,
   `fk_cat` int(255) NOT NULL,
   `product_name` varchar(255) NOT NULL,
-  `product_description` varchar(255) NOT NULL
+  `product_description` varchar(255) NOT NULL,
+  `status` tinyint(4) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -311,7 +360,9 @@ CREATE TABLE `product` (
 
 CREATE TABLE `purchase` (
   `purchase_id` int(255) NOT NULL,
-  `fk_supplier_id` int(11) NOT NULL
+  `fk_supplier_id` int(11) NOT NULL,
+  `status` tinyint(4) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -339,7 +390,24 @@ CREATE TABLE `stock` (
   `stock_id` int(255) NOT NULL,
   `stock_name` int(11) NOT NULL,
   `stock_number` int(11) NOT NULL,
-  `stock_address` int(11) NOT NULL
+  `stock_address` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `stock_action`
+--
+
+CREATE TABLE `stock_action` (
+  `action_id` int(255) NOT NULL,
+  `fk_user_id` bigint(50) NOT NULL,
+  `fk_stock_id` int(255) NOT NULL,
+  `status` tinyint(4) NOT NULL DEFAULT 0,
+  `type` tinyint(4) NOT NULL DEFAULT 0 COMMENT 'INBOUND OR OUTBOUND product into stock',
+  `comment` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -352,10 +420,11 @@ CREATE TABLE `stock_detail` (
   `detail_id` int(255) NOT NULL,
   `fk_product_id` int(255) NOT NULL,
   `fk_stock_id` int(255) NOT NULL,
-  `in_stock` int(255) NOT NULL,
+  `in_stock` tinyint(4) NOT NULL,
   `unit` int(255) NOT NULL,
   `purchase_price` decimal(30,2) NOT NULL,
-  `retail_price` decimal(30,2) NOT NULL
+  `retail_price` decimal(30,2) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -365,10 +434,13 @@ CREATE TABLE `stock_detail` (
 --
 
 CREATE TABLE `stock_mngmnt` (
-  `mangment_id` int(11) NOT NULL,
-  `number` int(11) NOT NULL,
-  `status` int(11) NOT NULL,
-  `created_at` int(11) NOT NULL
+  `mangment_id` int(255) NOT NULL,
+  `fk_user_id` bigint(50) NOT NULL,
+  `fk_stock_id` int(255) NOT NULL,
+  `custom_nb` int(255) NOT NULL,
+  `comment` text DEFAULT NULL,
+  `status` tinyint(4) NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -379,18 +451,16 @@ CREATE TABLE `stock_mngmnt` (
 
 CREATE TABLE `supplier` (
   `supplier_id` int(11) NOT NULL,
-  `fk_person_id` int(255) NOT NULL
+  `fk_person_id` int(255) NOT NULL,
+  `status` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `supplier`
 --
 
-INSERT INTO `supplier` (`supplier_id`, `fk_person_id`) VALUES
-(4, 5),
-(5, 6),
-(6, 7),
-(7, 8);
+INSERT INTO `supplier` (`supplier_id`, `fk_person_id`, `status`) VALUES
+(1, 2, 0);
 
 -- --------------------------------------------------------
 
@@ -408,6 +478,13 @@ CREATE TABLE `vat` (
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `action_transaction`
+--
+ALTER TABLE `action_transaction`
+  ADD KEY `fk_action_id` (`fk_stock_action`),
+  ADD KEY `fk_detail_id` (`fk_detail_id`);
 
 --
 -- Indexes for table `brand`
@@ -446,13 +523,21 @@ ALTER TABLE `customer`
 ALTER TABLE `item_transaction`
   ADD KEY `fk_t_pid` (`fk_PID`),
   ADD KEY `fk_t_sales` (`fk_sales_id`),
-  ADD KEY `fk_t_purchase` (`fk_purchase_id`);
+  ADD KEY `fk_t_purchase` (`fk_purchase_id`),
+  ADD KEY `fk_user2` (`fk_user_id`);
 
 --
 -- Indexes for table `login`
 --
 ALTER TABLE `login`
   ADD PRIMARY KEY (`userId`);
+
+--
+-- Indexes for table `mngmnt_transaction`
+--
+ALTER TABLE `mngmnt_transaction`
+  ADD KEY `fk_action_id` (`fk_stock_action`),
+  ADD KEY `fk_detail_id` (`fk_detail_id`);
 
 --
 -- Indexes for table `payment`
@@ -496,12 +581,27 @@ ALTER TABLE `stock`
   ADD PRIMARY KEY (`stock_id`);
 
 --
+-- Indexes for table `stock_action`
+--
+ALTER TABLE `stock_action`
+  ADD PRIMARY KEY (`action_id`),
+  ADD KEY `fk_m_stock_id` (`fk_stock_id`),
+  ADD KEY `fk_user1` (`fk_user_id`);
+
+--
 -- Indexes for table `stock_detail`
 --
 ALTER TABLE `stock_detail`
   ADD PRIMARY KEY (`detail_id`),
-  ADD KEY `fk_d_product` (`fk_product_id`),
-  ADD KEY `fk_d_stock` (`fk_stock_id`);
+  ADD KEY `fk_product_id` (`fk_product_id`,`fk_stock_id`) USING BTREE;
+
+--
+-- Indexes for table `stock_mngmnt`
+--
+ALTER TABLE `stock_mngmnt`
+  ADD PRIMARY KEY (`mangment_id`),
+  ADD KEY `fk_m_stock_id` (`fk_stock_id`),
+  ADD KEY `fk_user_id` (`fk_user_id`);
 
 --
 -- Indexes for table `supplier`
@@ -524,13 +624,13 @@ ALTER TABLE `vat`
 -- AUTO_INCREMENT for table `brand`
 --
 ALTER TABLE `brand`
-  MODIFY `brand_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=126;
+  MODIFY `brand_id` int(255) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `category`
 --
 ALTER TABLE `category`
-  MODIFY `CID` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `CID` int(255) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `company`
@@ -566,7 +666,7 @@ ALTER TABLE `payment`
 -- AUTO_INCREMENT for table `person`
 --
 ALTER TABLE `person`
-  MODIFY `person_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `person_id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `product`
@@ -593,20 +693,39 @@ ALTER TABLE `stock`
   MODIFY `stock_id` int(255) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `stock_action`
+--
+ALTER TABLE `stock_action`
+  MODIFY `action_id` int(255) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `stock_detail`
 --
 ALTER TABLE `stock_detail`
   MODIFY `detail_id` int(255) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `stock_mngmnt`
+--
+ALTER TABLE `stock_mngmnt`
+  MODIFY `mangment_id` int(255) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `supplier`
 --
 ALTER TABLE `supplier`
-  MODIFY `supplier_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `supplier_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `action_transaction`
+--
+ALTER TABLE `action_transaction`
+  ADD CONSTRAINT `fk_action_id` FOREIGN KEY (`fk_stock_action`) REFERENCES `stock_action` (`action_id`),
+  ADD CONSTRAINT `fk_detail_id` FOREIGN KEY (`fk_detail_id`) REFERENCES `stock_detail` (`detail_id`);
 
 --
 -- Constraints for table `customer`
@@ -620,7 +739,8 @@ ALTER TABLE `customer`
 ALTER TABLE `item_transaction`
   ADD CONSTRAINT `fk_t_pid` FOREIGN KEY (`fk_PID`) REFERENCES `product` (`PID`),
   ADD CONSTRAINT `fk_t_purchase` FOREIGN KEY (`fk_purchase_id`) REFERENCES `purchase` (`purchase_id`),
-  ADD CONSTRAINT `fk_t_sales` FOREIGN KEY (`fk_sales_id`) REFERENCES `sale` (`sale_id`);
+  ADD CONSTRAINT `fk_t_sales` FOREIGN KEY (`fk_sales_id`) REFERENCES `sale` (`sale_id`),
+  ADD CONSTRAINT `fk_user2` FOREIGN KEY (`fk_user_id`) REFERENCES `login` (`userId`);
 
 --
 -- Constraints for table `product`
@@ -643,11 +763,23 @@ ALTER TABLE `sale`
   ADD CONSTRAINT `fk_s_payment` FOREIGN KEY (`fk_payment_id`) REFERENCES `payment` (`payment_id`);
 
 --
+-- Constraints for table `stock_action`
+--
+ALTER TABLE `stock_action`
+  ADD CONSTRAINT `fk_user1` FOREIGN KEY (`fk_user_id`) REFERENCES `login` (`userId`);
+
+--
 -- Constraints for table `stock_detail`
 --
 ALTER TABLE `stock_detail`
-  ADD CONSTRAINT `fk_d_product` FOREIGN KEY (`fk_product_id`) REFERENCES `product` (`PID`),
-  ADD CONSTRAINT `fk_d_stock` FOREIGN KEY (`fk_stock_id`) REFERENCES `stock` (`stock_id`);
+  ADD CONSTRAINT `fk_d_product` FOREIGN KEY (`fk_product_id`) REFERENCES `product` (`PID`);
+
+--
+-- Constraints for table `stock_mngmnt`
+--
+ALTER TABLE `stock_mngmnt`
+  ADD CONSTRAINT `fk_m_stock_id` FOREIGN KEY (`fk_stock_id`) REFERENCES `stock` (`stock_id`),
+  ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`fk_user_id`) REFERENCES `login` (`userId`);
 
 --
 -- Constraints for table `supplier`

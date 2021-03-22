@@ -1,14 +1,12 @@
 <?php
 
-//America/New_York
 
-class DB_Manage
+
+class DB_manage
 {
 
     private $conn;
 
-//private $timezone;
-    // constructor
     public function __construct()
     {
         require_once 'DB_Connect.php';
