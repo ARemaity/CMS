@@ -27,7 +27,7 @@ $dbr=new DB_report();
 // print_r($result);
 
 
-$result=$dbr->get_single_customer(4);
+$result=$dbr->read_product();
 print_r($result);
 
 ?>

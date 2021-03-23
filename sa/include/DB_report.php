@@ -329,4 +329,46 @@ public function get_single_customer($id)
 
         }
     }
+
+
+
+    public function read_product()
+    {
+
+        $stmt = $this->conn->prepare('CALL `read_product`()');
+       
+        if ($stmt->execute()) {
+
+            $all = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            return $all;
+            
+        } else {
+            return false;
+            $stmt->close();
+
+        }
+    }
+
+
+//read stock detail
+public function get_single_stock_detail($id)
+    {
+
+        $stmt = $this->conn->prepare('CALL `get_single_stock_detail`(?)');
+        $stmt->bind_param('i', $id);
+        if ($stmt->execute()) {
+
+            $all = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            return $all;
+            
+        } else {
+            return false;
+            $stmt->close();
+
+        }
+    }
+
+
 }

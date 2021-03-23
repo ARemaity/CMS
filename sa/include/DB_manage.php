@@ -317,7 +317,32 @@ class DB_manage
         }
     }
 
+//stockdetail
+public function  update_stock_detail($id,$in_stock,$unit,$purchase_price)
+{
 
+    $stmt = $this->conn->prepare(' CALL `update_stock_detail`(?,?,?,?)');
+    $stmt->bind_param('iiid',$id, $in_stock,$unit,$purchase_price);
+    if ($stmt->execute()) {
+        $stmt->close();
+        return true;
+    } else {
+        return false;
+    }
+}
+public function delete_stock_detail($id)
+{
+
+    $stmt =  $this->conn->prepare(' CALL `delete_stock_detail`(?)');
+    $stmt->bind_param('i', $id);
+    if ($stmt->execute()) {
+
+        $stmt->close();
+        return true;
+    } else {
+        return false;
+    }
+}
 
 
 }
