@@ -1,17 +1,16 @@
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `create_stock_action`(IN `user_id` BIGINT(50), IN `stock_id` INT(255), IN `type` TINYINT, IN `comments` TEXT)
+BEGIN 
+INSERT INTO `stock_action`(`action_id`, `fk_user_id`, `fk_stock_id`, `status`, `type`, `comment`, `created_at`) VALUES (NULL,user_id,stock_id,NULL,type,comments,NULL);
+END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_brand`(IN `bid` INT)
     MODIFIES SQL DATA
 BEGIN 
 
 DELETE FROM `brand` WHERE brand_id=bid;
-
-END$$
-DELIMITER ;
-
-DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_currency`(IN `cid` INT)
-BEGIN 
-DELETE FROM `currency` WHERE currency_id=cid;
 
 END$$
 DELIMITER ;
@@ -32,12 +31,17 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_stock`(IN `sid` INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_person`(IN `did` INT(255))
+    NO SQL
+BEGIN
+DELETE FROM `person` WHERE person.person_id=did;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_currency`(IN `cid` INT)
 BEGIN 
-
-DELETE FROM stock WHERE stock_id=sid;
-
-
+DELETE FROM `currency` WHERE currency_id=cid;
 
 END$$
 DELIMITER ;
@@ -52,10 +56,24 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_person`(IN `did` INT(255))
-    NO SQL
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_stock`(IN `sid` INT)
+BEGIN 
+
+DELETE FROM stock WHERE stock_id=sid;
+
+
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_stock_detail`(IN `id` INT(255))
 BEGIN
-DELETE FROM `person` WHERE person.person_id=did;
+
+DELETE FROM stock_detail
+WHERE stock_detail.detail_id=id;
+
+
 END$$
 DELIMITER ;
 
@@ -71,6 +89,43 @@ INTO fkpid
 FROM supplier WHERE `supplier_id`= id ;
 DELETE FROM supplier WHERE supplier_id=id;
 CALL delete_person(fkpid);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `disable_product`(IN `id` INT(255))
+    NO SQL
+BEGIN
+UPDATE `product` 
+SET `status`= 0
+WHERE PID=id;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `disable_stock_action`(IN `action_id` INT)
+BEGIN
+UPDATE `stock_action` SET `status`=0 WHERE `action_id`=action_id;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `enable_product`(IN `id` INT)
+BEGIN
+UPDATE `product` 
+SET `status`= 1
+WHERE PID=id;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `enable_stock_action`(IN `action_id` INT)
+BEGIN
+UPDATE `stock_action` SET `status`=1 WHERE `action_id`=action_id;
+
 END$$
 DELIMITER ;
 
@@ -173,6 +228,14 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_stock_detail`(IN `id` INT(255))
+BEGIN
+SELECT  * FROM stock_detail 
+WHERE stock_detail.detail_id=id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_single_supplier`(IN `sid` INT(255))
 BEGIN
 DECLARE persindgid INT DEFAULT 0;
@@ -190,6 +253,13 @@ DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `get_stock`()
 BEGIN
 SELECT * FROM stock;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_stock_action`(IN `sid` INT(255))
+BEGIN 
+SELECT * FROM stock_action WHERE `fk_stock_id`=sid; 
 END$$
 DELIMITER ;
 
@@ -238,6 +308,27 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_product`(IN `fk_BID` INT(255), IN `fk_cat` INT(255), IN `product_name` VARCHAR(255), IN `product_description` VARCHAR(255), IN `sku` VARCHAR(30), IN `retail_price` DECIMAL(30), IN `status1` TINYINT(4), IN `fk_stock_id` INT(255), IN `in_stock` TINYINT(4), IN `unit` INT(255), IN `purchase_price` DECIMAL(30))
+    NO SQL
+BEGIN
+INSERT INTO `product`(`PID`, `fk_BID`, `fk_cat`, `product_name`, `product_description`, `sku`, `retail_price`, `status`, `created_at`) VALUES (Null,fk_BID,fk_cat,product_name,product_description,sku,retail_price,status1,NOW());
+
+CALL new_stock_detail(LAST_INSERT_ID(),fk_stock_id,in_stock,unit,purchase_price);
+
+
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_stock_detail`(IN `fkpid` INT(255), IN `fk_stock_id` INT(255), IN `in_stock` TINYINT(4), IN `unit` INT(255), IN `purchase_price` DECIMAL(30))
+BEGIN
+INSERT INTO `stock_detail`(`detail_id`, `fk_product_id`, `fk_stock_id`, `in_stock`, `unit`, `purchase_price`, `created_at`) VALUES (NULL,fkpid,fk_stock_id,in_stock,unit,purchase_price,NOW());
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `new_supplier`(IN `person_type` TINYINT(4), IN `fname` VARCHAR(100), IN `lname` VARCHAR(100), IN `address` VARCHAR(255), IN `phone` VARCHAR(20), IN `email` VARCHAR(255))
 BEGIN
 
@@ -246,6 +337,48 @@ CALL new_person(person_type,fname,lname,address,phone,email,@lid);
 
 
 INSERT INTO `supplier`(`supplier_id`, `fk_person_id`) VALUES (Null,@lid);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `read_product`()
+BEGIN
+SELECT P.*, C.CID as Cd,C.name as cname,C.description as cdescription,C.last_update as clup ,B.*, S.*,ST.*
+FROM product AS P
+	INNER JOIN category as C ON P.fk_cat = C.CID 
+	INNER JOIN brand as B ON P.fk_BID = B.brand_id 
+	INNER JOIN 
+    stock_detail as S ON S.fk_product_id =P.PID 
+	INNER JOIN stock as ST ON S.fk_stock_id = ST.stock_id;
+    END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `read_product_stock_detail`(IN `id` INT(255))
+    NO SQL
+BEGIN
+
+SELECT *
+FROM stock_detail
+WHERE stock_detail.fk_product_id=id;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `read_single_stock_action`(IN `action_id` INT(255))
+BEGIN
+
+SELECT * from stock_action WHERE `action_id`=action_id;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `read_stock_action_t`(IN `action_id` INT(255))
+BEGIN 
+SELECT  P.product_name,P.sku,A.unit_price,A.unit_number FROM   action_transaction A INNER JOIN product P  ON A.fk_product_id=P.PID  where A.fk_stock_action=action_id;
+
 END$$
 DELIMITER ;
 
@@ -307,11 +440,42 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_product`(IN `PID` INT(255), IN `fk_BID` INT(255), IN `fk_cat` INT(255), IN `product_name` VARCHAR(255), IN `product_description` VARCHAR(255), IN `sku` VARCHAR(30), IN `retail_price` DECIMAL(30), IN `status1` TINYINT(4))
+BEGIN
+UPDATE `product` 
+SET `fk_BID`=fk_BID,`fk_cat`=fk_cat,`product_name`=product_name,`product_description`=product_description,`sku`=sku,`retail_price`=retail_price,`status`=status1
+
+WHERE product.PID=PID;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `update_stock`(IN `sid` INT(255), IN `stock_name` VARCHAR(255), IN `stock_number` VARCHAR(250), IN `stock_address` VARCHAR(6))
 BEGIN
 UPDATE `stock` 
 SET `stock_name`=stock_name,`stock_number`=stock_number,`stock_address`=stock_address
 WHERE stock_id=sid;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_stock_action`(IN `action_id` INT(255), IN `stock_id` INT(255), IN `statuses` TINYINT, IN `type` TINYINT, IN `comments` VARCHAR(255))
+BEGIN
+
+UPDATE `stock_action` SET `fk_stock_id`=stock_id,`status`=statuses,`type`=type,`comment`=comments,`created_at`=NOW() WHERE `action_id`=action_id;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_stock_detail`(IN `id` INT(255), IN `in_stock` TINYINT(4), IN `unit` INT(255), IN `purchase_price` DECIMAL(30))
+BEGIN
+UPDATE `stock_detail` SET `in_stock`=in_stock,`unit`=unit,`purchase_price`=purchase_price
+WHERE stock_detail.detail_id=id;
+
+
+
 END$$
 DELIMITER ;
 
