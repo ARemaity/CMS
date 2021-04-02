@@ -3,7 +3,7 @@ import Modal from "react-bootstrap/Modal";
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 export const ModalInsert = (props) => {
-    console.log(props.showr);
+
     return (
         <Modal
         
@@ -16,13 +16,13 @@ export const ModalInsert = (props) => {
           <Modal.Header closeButton>
     <Modal.Title>Insert Stock</Modal.Title>
   </Modal.Header>
-  <Form>
+  <Form   onSubmit={props.submit} >
   <Modal.Body>
    
   
   <Form.Group controlId="formBasicName">
     <Form.Label>Stock Name</Form.Label>
-    <Form.Control size="lg" type="text" placeholder="Enter Name" />
+    <Form.Control size="lg" type="text" onChange={props.change} name="stock_name"  placeholder="Enter Name" />
     <Form.Text className="text-muted">
     
     </Form.Text>
@@ -30,12 +30,12 @@ export const ModalInsert = (props) => {
 
   <Form.Group controlId="formBasicPassword">
     <Form.Label>Stock Number</Form.Label>
-    <Form.Control size="lg" type="text" placeholder="Stock Number" />
+    <Form.Control size="lg" type="text"  onChange={props.change} name="stock_number" placeholder="Stock Number" />
   </Form.Group>
  
   <Form.Group controlId="formBasicAddress">
     <Form.Label>Address</Form.Label>
-    <Form.Control size="lg" type="address" placeholder="Enter Adress" />
+    <Form.Control size="lg" type="address"  onChange={props.change} name="stock_adress" placeholder="Enter Adress" />
     <Form.Text className="text-muted">
      
     </Form.Text>
