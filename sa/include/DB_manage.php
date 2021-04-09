@@ -194,7 +194,19 @@ class DB_manage
             return false;
         }
     }
+    public function new_stock($stockname,$stocknumber,$stockadress)
+    {
 
+        $stmt = $this->conn->prepare(' CALL `create_stock`(?,?,?)');
+        $stmt->bind_param('sis',$stockname,$stocknumber,$stockadress);
+        if ($stmt->execute()) {
+
+            $stmt->close();
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
 

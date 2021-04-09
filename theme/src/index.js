@@ -26,6 +26,7 @@ import {
 } from "./_metronic/layout";
 import {MetronicI18nProvider} from "./_metronic/i18n";
 
+
 /**
  * Base URL of the website.
  *
@@ -39,15 +40,15 @@ const { PUBLIC_URL } = process.env;
  *
  * @see https://github.com/ctimmerm/axios-mock-adapter
  */
-/* const mock = */ _redux.mockAxios(axios);
+// /* const mock = */ _redux.mockAxios(axios);
 
 /**
  * Inject metronic interceptors for axios.
  *
  * @see https://github.com/axios/axios#interceptors
  */
-_redux.setupAxios(axios, store);
-
+// _redux.setupAxios(axios, store);
+axios.defaults.baseURL=("http://localhost:8080/CMS/sa/action/");
 ReactDOM.render(
   <MetronicI18nProvider>
     <MetronicLayoutProvider>

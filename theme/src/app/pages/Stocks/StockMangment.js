@@ -3,7 +3,8 @@ import React,{Component  } from 'react';
 import Button from 'react-bootstrap/Button';
 import axios from 'axios';
 import {ModalInsert} from './ModalInsert'; 
-
+import { makeStyles } from '@material-ui/core/styles';
+import Tablestocks from './table'; 
 
 
 export class StockManagment extends Component {
@@ -12,8 +13,48 @@ export class StockManagment extends Component {
 
         stock_name : ""
         ,stock_number :"",
-         stock_address : ""
+         stock_address : "",
+         table :[]
 };
+ componentDidMount=()=>{
+
+  axios.get( `stock/get.php`).then(res => {
+    console.log(res.data);
+    this.setState({table:res.data});
+    
+  }).catch(function (error) {
+    console.log(error);
+  }); 
+  
+
+
+ }
+componentDidUpdate=()=>{
+
+  axios.get( `stock/get.php`).then(res => {
+    console.log(res.data);
+    this.setState({table:res.data});
+    
+  }).catch(function (error) {
+    console.log(error);
+  }); 
+  
+
+
+}
+Tablestyle = makeStyles(theme => ({
+  root: {
+    width: '100%',
+    marginTop: theme.spacing(3),
+    overflowX: 'auto',
+  },
+  table: {
+    minWidth: 650,
+  },
+}));
+
+
+
 
  modalAction=()=>{
     if(this.state.showmodal){
@@ -27,38 +68,17 @@ export class StockManagment extends Component {
 modalsubmit=(e)=>{
   
   e.preventDefault();
-  
+let stock={stock_name:this.state.stock_name,
+stock_number:this.state.stock_number,
+stock_address:this.state.stock_address}
 
-fetch("http://localhost:8080/CMS/theme/src/app/pages/Stocks/insert.php")
-.then(res => res.json())
-.then(
-  (result) => {
-   console.log(result);
-  },
-  // Note: it's important to handle errors here
-  // instead of a catch() block so that we don't swallow
-  // exceptions from actual bugs in components.
-  (error) => {
-   console.log(error)
-  }
-)
+axios.post( `stock/insert.php`,stock).then(res => {
+  console.log(res.data);
+}).catch(function (error) {
+  console.log(error);
+}); 
 
-// axios.post(`http://localhost:8080/CMS/theme/src/app/pages/Stocks/insert.php`, { user:"sd" })
-// .then(res => {
-//   console.log(res);
-//   console.log(res.data);
-// })
-
-
-
-
-
-
-
-
-
-
-
+this.setState({showmodal : false});
 
 
 }
@@ -77,9 +97,9 @@ render(){
      onHide={()=>this.modalAction()} 
      />
  
+ <Tablestocks Tablestyle={this.Tablestyle} rowdata={this.state.table}/>
 
-
-
+ 
     </div>
   );
 }

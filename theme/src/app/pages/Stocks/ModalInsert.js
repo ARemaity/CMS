@@ -2,6 +2,7 @@ import React from 'react';
 import Modal from "react-bootstrap/Modal";
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+
 export const ModalInsert = (props) => {
 
     return (
@@ -22,7 +23,7 @@ export const ModalInsert = (props) => {
   
   <Form.Group controlId="formBasicName">
     <Form.Label>Stock Name</Form.Label>
-    <Form.Control size="lg" type="text" onChange={props.change} name="stock_name"  placeholder="Enter Name" />
+    <Form.Control size="lg" type="text" onChange={props.change} name="stock_name"  placeholder="Enter Name" required />
     <Form.Text className="text-muted">
     
     </Form.Text>
@@ -30,12 +31,12 @@ export const ModalInsert = (props) => {
 
   <Form.Group controlId="formBasicPassword">
     <Form.Label>Stock Number</Form.Label>
-    <Form.Control size="lg" type="text"  onChange={props.change} name="stock_number" placeholder="Stock Number" />
+    <Form.Control pattern="[0-9]*" size="lg" type="text"  onChange={props.change} name="stock_number" placeholder="Stock Number"  required/>
   </Form.Group>
  
   <Form.Group controlId="formBasicAddress">
     <Form.Label>Address</Form.Label>
-    <Form.Control size="lg" type="address"  onChange={props.change} name="stock_adress" placeholder="Enter Adress" />
+    <Form.Control size="lg" type="address"  onChange={props.change} name="stock_address" placeholder="Enter Adress" required />
     <Form.Text className="text-muted">
      
     </Form.Text>
