@@ -31,7 +31,7 @@ export const ModalInsert = (props) => {
 
   <Form.Group controlId="formBasicPassword">
     <Form.Label>Stock Number</Form.Label>
-    <Form.Control pattern="[0-9]*" size="lg" type="text"  onChange={props.change} name="stock_number" placeholder="Stock Number"  required/>
+    <Form.Control  size="lg" type="text"  onChange={props.change} name="stock_number" placeholder="Stock Number" value={props.number}  required/>
   </Form.Group>
  
   <Form.Group controlId="formBasicAddress">
@@ -47,7 +47,7 @@ export const ModalInsert = (props) => {
   
   <Modal.Footer>
     <Button onClick={props.onHide} variant="secondary">Close</Button>
-    <Button variant="primary" type="submit" >Save changes</Button>
+    <Button variant="primary" type="submit" >Add Stock</Button>
   </Modal.Footer>
   </Form>
         </Modal>

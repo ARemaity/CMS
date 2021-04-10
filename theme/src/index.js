@@ -49,6 +49,7 @@ const { PUBLIC_URL } = process.env;
  */
 // _redux.setupAxios(axios, store);
 axios.defaults.baseURL=("http://localhost:8080/CMS/sa/action/");
+
 ReactDOM.render(
   <MetronicI18nProvider>
     <MetronicLayoutProvider>

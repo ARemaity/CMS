@@ -1,10 +1,13 @@
 
 <?php
-header('Access-Control-Allow-Origin: *');
-header('Content-type: application/json');
-$_POST = json_decode(file_get_contents("php://input"),true);
+// header('Access-Control-Allow-Origin: *');
+// header('Content-type: application/json');
 require_once (dirname(__FILE__, 3)) . '/include/DB_manage.php';
+
 $dbm=new DB_manage();
+
+$_POST = json_decode(file_get_contents("php://input"),true);
+
 
 $name=$_POST["stock_name"];
 $number=$_POST["stock_number"];

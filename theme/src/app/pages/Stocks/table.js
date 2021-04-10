@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React,{useEffect} from 'react';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -8,12 +8,15 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
+const Stocktable=(props)=> {
+
+useEffect(()=>{
+
+console.log("sd");
+
+});
 
 
-
-
-
-export default function stock_table(props) {
   const classes = props.Tablestyle();
   let rows=props.rowdata;
 
@@ -46,3 +49,4 @@ export default function stock_table(props) {
     </Paper>
   );
 }
+export default Stocktable;
