@@ -98,7 +98,7 @@ render(){
 
   <ModalInsert
   submit={this.modalsubmit}
-  change={this.onChange}
+  change={(e)=>this.onChange(e)}
   number={this.state.stock_number}
       showr={this.state.showmodal}
      onHide={()=>this.modalAction()} 
