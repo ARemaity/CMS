@@ -30,7 +30,7 @@ this.updatetable();
 updatetable=()=>{
 
   axios.get( `stock/get.php`).then(res => {
-    console.log(res.data);
+   
     this.setState({table:res.data});
     
   }).catch(function (error) {
@@ -81,6 +81,7 @@ stock_address:this.state.stock_address}
 
 axios.post(`stock/insert.php`,stock).then(res => {
 if(res.data===1)this.updatetable();
+
 }).catch(function (error) {
   console.log(error);
 }); 

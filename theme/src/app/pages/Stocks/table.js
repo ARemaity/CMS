@@ -10,11 +10,7 @@ import Paper from '@material-ui/core/Paper';
 
 const Stocktable=(props)=> {
 
-useEffect(()=>{
 
-console.log("sd");
-
-});
 
 
   const classes = props.Tablestyle();
