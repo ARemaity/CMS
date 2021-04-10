@@ -31,7 +31,7 @@ const Stocktable=(props)=> {
         <TableBody>
           {rows.map(row => {return(
             <TableRow key={row.stock_id}>
-              <TableCell component="th" scope="row">
+              <TableCell onClick={props.cellclick} component="th" scope="row">
                 {row.stock_id}
               </TableCell>
               <TableCell align="right">{row.stock_name}</TableCell>
